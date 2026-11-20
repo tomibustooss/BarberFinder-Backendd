@@ -1,0 +1,112 @@
+# BarberFinder: MySQL + 3 microservicios Spring Boot.
+# Uso: copiar .env.example a .env y ejecutar  docker compose up -d --build
+# Instrucciones completas en docs/DOCKER.md
+
+name: barberfinder
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: barberfinder-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Falta MYSQL_ROOT_PASSWORD en el archivo .env}
+      MYSQL_USER: ${DB_USER:?Falta DB_USER en el archivo .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en el archivo .env}
+      TZ: America/Santiago
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  ms-usuarios:
+    build: ./ms-usuarios
+    image: barberfinder/ms-usuarios:1.0.0
+    container_name: barberfinder-ms-usuarios
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: barber_usuarios
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-120}
+      RECOVERY_DEMO_MODE: ${RECOVERY_DEMO_MODE:-true}
+      SEED_ENABLED: ${SEED_ENABLED:-true}
+      SEED_PASSWORD: ${SEED_PASSWORD:-Demo12345}
+      TZ: America/Santiago
+    ports:
+      - "${USUARIOS_PORT:-8081}:8081"
+
+  ms-barberias:
+    build: ./ms-barberias
+    image: barberfinder/ms-barberias:1.0.0
+    container_name: barberfinder-ms-barberias
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8082
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: barber_barberias
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
+      SEED_ENABLED: ${SEED_ENABLED:-true}
+      SEED_DUENO_ID: ${SEED_DUENO_ID:-2}
+      TZ: America/Santiago
+    ports:
+      - "${BARBERIAS_PORT:-8082}:8082"
+
+  ms-reservas:
+    build: ./ms-reservas
+    image: barberfinder/ms-reservas:1.0.0
+    container_name: barberfinder-ms-reservas
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ms-barberias:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8083
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: barber_reservas
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
+      BARBERIAS_URL: http://ms-barberias:8082
+      TZ: America/Santiago
+    ports:
+      - "${RESERVAS_PORT:-8083}:8083"
+
+  # Opcional: visor web de la base de datos (http://localhost:8090).
+  # Se levanta solo con:  docker compose --profile herramientas up -d
+  adminer:
+    image: adminer:4
+    container_name: barberfinder-adminer
+    profiles: ["herramientas"]
+    depends_on:
+      - mysql
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    ports:
+      - "8090:8080"
+
+volumes:
+  mysql_data:

@@ -1,0 +1,1070 @@
+{
+  "info": {
+    "name": "BarberFinder API",
+    "description": "Endpoints de los microservicios ms-usuarios (8081), ms-barberias (8082) y ms-reservas (8083). Primero ejecuta un Login: el token queda guardado automáticamente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('fecha')) {",
+          "  const d = new Date(Date.now() + 2 * 86400000);",
+          "  pm.collectionVariables.set('fecha', d.toISOString().slice(0, 10));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "usuarios",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "barberias",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "reservas",
+      "value": "http://localhost:8083"
+    },
+    {
+      "key": "password",
+      "value": "Demo12345"
+    },
+    {
+      "key": "fecha",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "reservaId",
+      "value": "1"
+    },
+    {
+      "key": "barberiaId",
+      "value": "1"
+    },
+    {
+      "key": "usuarioId",
+      "value": "4"
+    },
+    {
+      "key": "codigo",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Estado",
+      "item": [
+        {
+          "name": "Estado ms-usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usuarios}}/api/estado",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Estado ms-barberias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/estado",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Estado ms-reservas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/estado",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "Login ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/login",
+            "description": "Inicia sesión como ADMIN. Guarda el token en {{token}} (lo usan las demás peticiones) y en {{token_admin}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@barberfinder.cl\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('token', j.token);",
+                  "pm.collectionVariables.set('token_admin', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login DUENO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/login",
+            "description": "Inicia sesión como DUENO. Guarda el token en {{token}} (lo usan las demás peticiones) y en {{token_dueno}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dueno@barberfinder.cl\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('token', j.token);",
+                  "pm.collectionVariables.set('token_dueno', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login BARBERO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/login",
+            "description": "Inicia sesión como BARBERO. Guarda el token en {{token}} (lo usan las demás peticiones) y en {{token_barbero}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"barbero@barberfinder.cl\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('token', j.token);",
+                  "pm.collectionVariables.set('token_barbero', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login CLIENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/login",
+            "description": "Inicia sesión como CLIENTE. Guarda el token en {{token}} (lo usan las demás peticiones) y en {{token_cliente}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@barberfinder.cl\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('token', j.token);",
+                  "pm.collectionVariables.set('token_cliente', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro de cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/registro",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Rojas\",\n  \"email\": \"ana{{$timestamp}}@correo.cl\",\n  \"telefono\": \"+56911223344\",\n  \"password\": \"Clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recuperar contraseña (pedir código)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/recuperar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@barberfinder.cl\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.codigoDemo) pm.collectionVariables.set('codigo', j.codigoDemo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restablecer contraseña con código",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/auth/restablecer",
+            "description": "Usa el código guardado por la petición anterior. Deja la contraseña igual a {{password}} para no romper las credenciales de prueba.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@barberfinder.cl\",\n  \"codigo\": \"{{codigo}}\",\n  \"nuevaPassword\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Perfil (cualquier rol)",
+      "item": [
+        {
+          "name": "Ver mi perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios/me"
+          }
+        },
+        {
+          "name": "Modificar mi perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/usuarios/me",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente Demo\",\n  \"telefono\": \"+56944444444\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Cambiar mi contraseña",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/usuarios/me/password",
+            "description": "Usa el token del usuario creado en 'Registro de cliente' (contraseña Clave1234). No lo uses con los usuarios de prueba para no cambiarles Demo12345.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordActual\": \"Clave1234\",\n  \"nuevaPassword\": \"Nueva12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Administración de usuarios (ADMIN)",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar barberos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios?rol=BARBERO",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios/{{usuarioId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear barbero",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pedro Soto\",\n  \"email\": \"pedro{{$timestamp}}@barberfinder.cl\",\n  \"telefono\": \"+56955556666\",\n  \"password\": \"Clave1234\",\n  \"rol\": \"BARBERO\",\n  \"barberiaId\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) pm.collectionVariables.set('usuarioId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar rol",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usuarios}}/api/usuarios/{{usuarioId}}/rol",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"DUENO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desactivar usuario",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios/{{usuarioId}}/estado?activo=false",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{usuarios}}/api/usuarios/{{usuarioId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Barberías",
+      "item": [
+        {
+          "name": "Listar barberías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Buscar por nombre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias?q=trebol",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Filtrar por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias?categoria=PREMIUM",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Detalle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Servicios y precios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}/servicios",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Precio combo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}/precio?servicio=CORTE_Y_BARBA",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Mis barberías (DUENO)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/mias",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_dueno}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear barbería (DUENO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{barberias}}/api/barberias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Barbería Los Andes\",\n  \"categoria\": \"INTERMEDIA\",\n  \"direccion\": \"Av. Ejemplo 123 (dirección ficticia)\",\n  \"comuna\": \"Providencia\",\n  \"descripcion\": \"Cortes clásicos y modernos.\",\n  \"telefono\": \"+56922223333\",\n  \"precioCorteClasico\": 9000,\n  \"precioCorteModerno\": 11000,\n  \"precioBarba\": 5000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_dueno}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) pm.collectionVariables.set('barberiaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modificar barbería (DUENO)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Barbería Los Andes\",\n  \"categoria\": \"PREMIUM\",\n  \"direccion\": \"Av. Ejemplo 123 (dirección ficticia)\",\n  \"comuna\": \"Providencia\",\n  \"descripcion\": \"Ahora premium.\",\n  \"telefono\": \"+56922223333\",\n  \"precioCorteClasico\": 15000,\n  \"precioCorteModerno\": 18000,\n  \"precioBarba\": 7000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_dueno}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desactivar barbería (DUENO)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}/estado?activa=false",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_dueno}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar barbería (DUENO)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{barberias}}/api/barberias/{{barberiaId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_dueno}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Reservas",
+      "item": [
+        {
+          "name": "Disponibilidad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/disponibilidad?barberiaId=1&fecha={{fecha}}",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Crear reserva (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{reservas}}/api/reservas",
+            "description": "Cambia la variable {{fecha}} por una fecha entre hoy y 30 días más.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"barberiaId\": 1,\n  \"servicio\": \"CORTE_Y_BARBA\",\n  \"fecha\": \"{{fecha}}\",\n  \"hora\": \"15:00\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"+56944444444\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) pm.collectionVariables.set('reservaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mis reservas (CLIENTE)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/mias",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver reserva",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reprogramar (CLIENTE)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha\": \"{{fecha}}\",\n  \"hora\": \"16:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Agenda de la barbería (BARBERO / DUENO / ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/barberia/1?fecha={{fecha}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_barbero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Marcar atendida (BARBERO)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ATENDIDA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_barbero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Volver a CONFIRMADA (BARBERO)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}/estado",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_barbero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancelar reserva",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}/cancelar",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_cliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Todas las reservas (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{reservas}}/api/reservas",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar reserva (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{reservas}}/api/reservas/{{reservaId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

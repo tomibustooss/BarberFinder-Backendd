@@ -1,0 +1,23 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+spring:
+  application:
+    name: ms-reservas
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:barber_reservas}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${DB_USER:barber}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  jackson:
+    time-zone: America/Santiago
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+  barberias:
+    url: ${BARBERIAS_URL:http://localhost:8082}
+  zona-horaria: America/Santiago

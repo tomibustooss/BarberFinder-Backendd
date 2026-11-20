@@ -1,0 +1,29 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: ms-usuarios
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:barber_usuarios}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${DB_USER:barber}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  jackson:
+    time-zone: America/Santiago
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+  recovery:
+    demo-mode: ${RECOVERY_DEMO_MODE:true}
+  seed:
+    enabled: ${SEED_ENABLED:true}
+    password: ${SEED_PASSWORD:Demo12345}
